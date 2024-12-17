@@ -11,6 +11,10 @@ Just a simple database. Write into plain text file. Support CRUD operations. Aim
 - What database can do. CRUD operations  
 - Menu for user interaction  
 
+## Author
+
+Me
+
 ## License
 
 MIT License. See [License](LICENSE).
