@@ -1,4 +1,4 @@
-from db_operations import add, delete
+from db_operations import add, delete, update
 
 
 def add_data():
@@ -12,7 +12,9 @@ def add_data():
 
 def main():
     print("Welcome to MiniDB")
-    delete("3")
+    add_data()
+    update("5", "Doe John,25")
+    delete("1")
 
 
 if __name__ == "__main__":
