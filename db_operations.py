@@ -24,16 +24,15 @@ def validate_id(func):
 # Add into file
 # Id must be unique and a digit
 # Return True if success add
-def add(data):
+def add(record):
     try:
-        record = Record.from_string(data)
 
         if not record.is_valid():
             print(f"Record {record} is not valid, no addition were made.")
             return False
 
         if not is_id_unique(record.id):
-            print(f"Id {record.id} already exist, not addition were made.")
+            print(f"Id {record.id} already exist, no addition were made.")
             return False
 
         file_handler.append_lines(str(record) + "\n")
@@ -77,9 +76,8 @@ def delete(id):
 
 
 @validate_id
-def update(id, data):
+def update(id, record):
     try:
-        record = Record.from_string(data)
         if not record.is_valid():
             print(f"Record {record} is not valid, no updates were made.")
             return False
