@@ -1,4 +1,1 @@
 DB_NAME = "data.txt"
-ID_INDEX = 0
-NAME_INDEX = 1
-AGE_INDEX = 2

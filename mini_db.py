@@ -13,7 +13,7 @@ def add_data():
 def main():
     print("Welcome to MiniDB")
     add_data()
-    update("5", "Doe John,25")
+    update("5", "5,Doe John,25")
     delete("1")
 
 

@@ -1,5 +1,6 @@
-from constants import DB_NAME, ID_INDEX, NAME_INDEX
+from constants import DB_NAME
 import os
+from record import Record
 import logging
 from file_handler import FileHandler
 
@@ -12,7 +13,6 @@ file_handler = FileHandler(DB_NAME)
 
 def validate_id(func):
     def wrapper(id, *args, **kwargs):
-        id = id.strip()
         if not id.isdigit():
             print(f"ID must be a digit")
             return False
@@ -26,10 +26,18 @@ def validate_id(func):
 # Return True if success add
 def add(data):
     try:
-        id = data.split(",")[ID_INDEX].strip()
-        if not id.isdigit() or not is_id_unique(id):
+        record = Record.from_string(data)
+
+        if not record.is_valid():
+            print(f"Record {record} is not valid, no addition were made.")
             return False
-        file_handler.append_lines(data + "\n")
+
+        if not is_id_unique(record.id):
+            print(f"Id {record.id} already exist, not addition were made.")
+            return False
+
+        file_handler.append_lines(str(record) + "\n")
+
     except Exception as e:
         logging.error(f"Error while writing to file: {e}")
         return False
@@ -40,13 +48,10 @@ def add(data):
 # Return data line if exist, None if not
 def search(input):
     try:
-        input = input.strip()
         lines = file_handler.read_lines()
         for line in lines:
-            data = line.split(",")
-            if is_id_equal(data[ID_INDEX], input) or is_name_equal(
-                data[NAME_INDEX], input
-            ):
+            record = Record.from_string(line)
+            if is_id_equal(record.id, input) or is_name_equal(record.name, input):
                 return line
     except Exception as e:
         logging.error(f"Error while searching record: {e}")
@@ -64,7 +69,7 @@ def delete(id):
             print(f"Id {id} not found, no delete were made.")
             return False
 
-        file_handler.write_lines(lines)
+        file_handler.write_lines(new_lines)
     except Exception as e:
         logging.error(f"Error while deleting record: {e}")
         return False
@@ -74,17 +79,26 @@ def delete(id):
 @validate_id
 def update(id, data):
     try:
+        record = Record.from_string(data)
+        if not record.is_valid():
+            print(f"Record {record} is not valid, no updates were made.")
+            return False
         lines = file_handler.read_lines()
-
-        new_lines = [
-            id + "," + data + "\n" if is_id_equal(line.split(",")[0], id) else line
-            for line in lines
-        ]
-
-        if lines == new_lines:
+        found = False
+        new_lines = []
+        for line in lines:
+            if is_id_equal(line.split(",")[0], id):
+                new_lines.append(str(record) + "\n")
+                found = True
+            else:
+                new_lines.append(line)
+        if not found:
             print(f"Id {id} not found, no updates were made.")
             return False
 
+        if lines == new_lines:
+            print(f"No changes in data, no updates were made.")
+            return False
         file_handler.write_lines(new_lines)
     except Exception as e:
         logging.error(f"Error while updating record: {e}")
@@ -93,11 +107,7 @@ def update(id, data):
 
 
 def is_id_unique(id):
-    if search(id) == None:
-        return True
-    else:
-        print(f"id {id} already exist")
-        return False
+    return search(id) == None
 
 
 def is_id_equal(id, input):
@@ -105,4 +115,4 @@ def is_id_equal(id, input):
 
 
 def is_name_equal(name, input):
-    return input.isalpha() and name.strip() == input.strip()
+    return input.replace(" ", "").isalpha() and name == input
